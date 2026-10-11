@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exindel Chess</title>
+    <meta name="description" content="Play chess against Stockfish personalities with a live coach, threat lens and plan preview." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23cba6f7'/%3E%3Cstop offset='1' stop-color='%23fab387'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Cpath d='M10 8h12v3.6h-8v2.6h7v3.6h-7v2.6h8V24H10z' fill='%231e1e2e'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="rail">
+        <div class="brand">
+          <svg viewBox="0 0 32 32" class="logo" aria-hidden="true">
+            <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--accent)" /><stop offset="1" stop-color="var(--accent-2)" /></linearGradient></defs>
+            <rect width="32" height="32" rx="9" fill="url(#lg)" />
+            <path d="M10 8h12v3.6h-8v2.6h7v3.6h-7v2.6h8V24H10z" fill="var(--base)" />
+          </svg>
+          <span class="brand-text">Exindel<b>chess</b></span>
+        </div>
+        <nav class="nav">
+          <button data-nav="bot" class="nav-item"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="3" /><circle cx="9.5" cy="13" r="1.4" /><circle cx="14.5" cy="13" r="1.4" /><path d="M12 7V4M9 4h6" /></svg><span>Play bots</span></button>
+          <button data-nav="online" class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" /></svg><span>Play online</span></button>
+          <button data-nav="friend" class="nav-item"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3" /><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6" /><path d="M15 11l2 2 4-4" /></svg><span>Play a friend</span></button>
+          <button data-nav="analysis" class="nav-item"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M7 15l4-5 3 3 5-7" /></svg><span>Analysis</span></button>
+          <button data-nav="game" class="nav-item"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3" /><path d="M4 12h16M12 4v16" /></svg><span>Current game</span></button>
+          <button data-nav="style" class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" /><circle cx="9" cy="9" r="1.3" /><circle cx="15" cy="9" r="1.3" /><circle cx="9" cy="15" r="1.3" /><path d="M14 16a2 2 0 1 0 2-2" /></svg><span>Style</span></button>
+        </nav>
+        <div class="rail-foot">
+          <button id="soundToggle" class="nav-item small" title="Sound"><svg viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6L8 10z" /><path class="wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11" /></svg><span>Sound</span></button>
+          <p class="keys"><kbd>←</kbd><kbd>→</kbd> step · <kbd>F</kbd> flip · <kbd>H</kbd> hint · <kbd>T</kbd> lens · <kbd>3</kbd> 3D</p>
+        </div>
+      </aside>
+
+      <main class="stage">
+        <div class="player" id="playerTop"></div>
+        <div class="board-row">
+          <div class="evalbar" id="evalbar" title="Engine evaluation">
+            <div class="eval-fill"></div>
+            <span class="eval-label"></span>
+          </div>
+          <div class="board-frame" id="boardFrame">
+            <div class="board-hud" id="boardHud">
+              <div class="view-pill" role="group" aria-label="Board view">
+                <button type="button" class="vh-btn" data-view="2d" title="Switch to 2D board">2D</button>
+                <button type="button" class="vh-btn active" data-view="3d" title="Switch to 3D board">3D</button>
+              </div>
+              <div class="cam-pill" id="camPill">
+                <button type="button" class="cam-btn active" data-cam="default" title="Standard 3D angle">3D</button>
+                <button type="button" class="cam-btn" data-cam="low" title="Cinematic angle">Angle</button>
+                <button type="button" class="cam-btn" data-cam="top" title="Top-down 3D view">Top</button>
+                <button type="button" class="cam-btn" id="camResetBtn" title="Reset camera view">
+                  <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="board" id="board"></div>
+            <svg class="arrows" id="arrows" viewBox="0 0 800 800"></svg>
+            <div class="promo" id="promo" hidden></div>
+          </div>
+        </div>
+        <div class="player" id="playerBottom"></div>
+      </main>
+
+      <section class="panel">
+        <div class="tabs" role="tablist">
+          <button data-tab="setup">New game</button>
+          <button data-tab="game">Game</button>
+          <button data-tab="style">Style</button>
+        </div>
+
+        <div class="tab" id="tab-setup">
+          <div class="seg" id="modeSeg">
+            <button data-mode="bot">Bot</button>
+            <button data-mode="online">Online</button>
+            <button data-mode="friend">Friend</button>
+            <button data-mode="analysis">Analysis</button>
+          </div>
+
+          <div id="botPick">
+            <h3 class="label">Opponent</h3>
+            <div class="bots" id="bots"></div>
+            <div class="bot-bubble" id="botBubble"></div>
+          </div>
+
+          <div id="onlinePick">
+            <p class="hint-text" id="onlineHint"></p>
+            <h3 class="label">Your name</h3>
+            <input id="nameInput" class="input name" maxlength="20" placeholder="Your name" autocomplete="nickname" />
+          </div>
+
+          <div id="colorPick">
+            <h3 class="label">You play</h3>
+            <div class="seg" id="colorSeg">
+              <button data-color="w"><span class="pc wk mini"></span>White</button>
+              <button data-color="r"><span class="dice">?</span>Random</button>
+              <button data-color="b"><span class="pc bk mini"></span>Black</button>
+            </div>
+          </div>
+
+          <div id="tcPick">
+            <h3 class="label">Clock</h3>
+            <div class="seg wrap" id="tcSeg">
+              <button data-tc="0+0">∞</button>
+              <button data-tc="3+2">3 | 2</button>
+              <button data-tc="5+0">5 min</button>
+              <button data-tc="10+0">10 min</button>
+              <button data-tc="15+10">15 | 10</button>
+            </div>
+          </div>
+
+          <div id="fenPick">
+            <h3 class="label">Start position <small>(optional FEN)</small></h3>
+            <input id="fenInput" class="input" spellcheck="false" placeholder="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" />
+          </div>
+
+          <button class="cta" id="startBtn">Start game</button>
+        </div>
+
+        <div class="tab" id="tab-game">
+          <div class="online-card" id="onlineCard" hidden></div>
+          <div class="graph-card">
+            <svg id="graph" viewBox="0 0 300 64" preserveAspectRatio="none"></svg>
+          </div>
+          <div class="coach" id="coach"></div>
+          <div class="moves" id="moves"></div>
+          <div class="controls">
+            <button data-act="first" title="First (Home)"><svg viewBox="0 0 24 24"><path d="M6 5v14M18 6l-8 6 8 6z" /></svg></button>
+            <button data-act="prev" title="Back (←)"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" /></svg></button>
+            <button data-act="next" title="Forward (→)"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" /></svg></button>
+            <button data-act="last" title="Live (End)"><svg viewBox="0 0 24 24"><path d="M18 5v14M6 6l8 6-8 6z" /></svg></button>
+          </div>
+          <div class="tools">
+            <button data-act="hint" class="tool"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z" /></svg>Plan</button>
+            <button data-act="lens" class="tool"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" /><path d="M20 20l-4.5-4.5M11 8v6M8 11h6" /></svg>Lens</button>
+            <button data-act="3d" class="tool"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z" /><path d="M4 7.5l8 4.5 8-4.5M12 12v9" /></svg>3D</button>
+            <button data-act="undo" class="tool"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10a6 6 0 0 1 0 12h-3" /></svg>Takeback</button>
+            <button data-act="flip" class="tool"><svg viewBox="0 0 24 24"><path d="M7 4v16M7 4L3 8M7 4l4 4M17 20V4M17 20l-4-4M17 20l4-4" /></svg>Flip</button>
+            <button data-act="draw" class="tool"><svg viewBox="0 0 24 24"><path d="M5 9h14M5 15h14" /></svg>Draw</button>
+            <button data-act="pgn" class="tool"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3" /></svg>PGN</button>
+            <button data-act="resign" class="tool danger"><svg viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5" /></svg>Resign</button>
+          </div>
+        </div>
+
+        <div class="tab" id="tab-style">
+          <h3 class="label">Board</h3>
+          <div class="themes" id="themes"></div>
+          <h3 class="label">Accent</h3>
+          <div class="accents" id="accents"></div>
+          <h3 class="label">Assist</h3>
+          <div class="toggles" id="toggles"></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="modal" id="modal" hidden><div class="modal-card" id="modalCard"></div></div>
+    <div class="toast" id="toast"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
