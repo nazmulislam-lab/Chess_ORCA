@@ -81,7 +81,7 @@ const S = {
   resignArmed: 0,
   tab: 'setup',
   setup: { mode: 'bot', botId: 'brick', color: 'w', tc: '0+0', fen: '', name: '' },
-  settings: { theme: 'orchid', accent: 'mauve', sound: true, coach: true, lens: false, legal: true, coords: true, autoflip: false, view3d: true },
+  settings: { theme: 'orchid', accent: 'mauve', sound: true, coach: true, lens: false, legal: true, coords: true, autoflip: false, view3d: false },
 };
 
 let game = new Chess();
@@ -1668,7 +1668,7 @@ function restoreGame() {
 
 const savedSettings = store.get('orca.settings') || {};
 Object.assign(S.settings, savedSettings);
-S.settings.view3d = true;
+S.settings.view3d = false;
 store.set('orca.settings', S.settings);
 Object.assign(S.setup, store.get('orca.setup') || {});
 if (S.setup.mode === 'local') S.setup.mode = 'friend';

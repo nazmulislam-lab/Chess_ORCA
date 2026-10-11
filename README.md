@@ -10,8 +10,9 @@ A modern, fast, and feature-rich chess platform featuring interactive 3D and 2D 
 
 ## ✨ Features
 
-### 🌟 Dual 3D & 2D Board System
-* **Stunning 3D Visuals**: Procedural Staunton chess pieces (lathe-turned bodies, hand-crafted knight profiles) with weighted green felt pads and PBR materials.
+### 🌟 Dual 2D & 3D Board System
+* **Crisp 2D Board by Default**: Ultra-clean, distraction-free board with customizable colorways, vector piece sets, smooth move transitions, and instant response.
+* **Interactive 3D Visuals on Demand**: Switch to 3D with a single click — procedural Staunton chess pieces with weighted green felt pads and PBR materials.
 * **Realistic Wood Surfaces**: Procedural wood grain textures on tiles with individual chamfered inlays that catch studio lighting and soft shadows.
 * **Camera Controls**:
   * **Free Orbit & Zoom**: Click and drag across the board to rotate; scroll wheel or pinch to zoom.
